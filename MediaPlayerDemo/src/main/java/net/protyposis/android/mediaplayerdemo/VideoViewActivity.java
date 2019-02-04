@@ -33,6 +33,8 @@ import net.protyposis.android.mediaplayer.MediaPlayer;
 import net.protyposis.android.mediaplayer.MediaSource;
 import net.protyposis.android.mediaplayer.VideoView;
 
+import java.io.File;
+
 public class VideoViewActivity extends Activity {
 
     private static final String TAG = VideoViewActivity.class.getSimpleName();
@@ -70,7 +72,31 @@ public class VideoViewActivity extends Activity {
         mVideoUri = getIntent().getData();
         mVideoPosition = 0;
         mVideoPlaybackSpeed = 1;
-        mVideoPlaying = false;
+        // mVideoPlaying = false;
+        // Jiayi: start playing directly;
+        mVideoPlaying = true;
+
+        Thread testThread = new Thread() {
+            public void run() {
+                for (int i = 0; i < 1000; i++)
+                {
+                    if (i % 2 == 1) {
+                        mVideoUri = Uri.parse(new File("/sdcard/P1_video/viking_1204_13674_crf23.mp4").toString());
+                        initPlayer();
+                    } else {
+                        mVideoUri = Uri.parse(new File("/sdcard/P1_video/viking.mp4").toString());
+                        initPlayer();
+                    }
+                    try {
+                        Thread.sleep(200); // Jiayi: 200 is min time to load videos
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }
+        };
+        testThread.start();
     }
 
     @Override
@@ -91,7 +117,7 @@ public class VideoViewActivity extends Activity {
     }
 
     private void initPlayer() {
-        getActionBar().setSubtitle(mVideoUri+"");
+        // getActionBar().setSubtitle(mVideoUri+""); // Jiayi: Error appears when switching from one video to another
 
         mVideoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
@@ -183,6 +209,7 @@ public class VideoViewActivity extends Activity {
                 Log.e(TAG, "error loading video", e);
             }
         };
+        /*
         if(mMediaSource == null) {
             // Convert uri to media source asynchronously to avoid UI blocking
             // It could take a while, e.g. if it's a DASH source and needs to be preprocessed
@@ -190,7 +217,9 @@ public class VideoViewActivity extends Activity {
         } else {
             // Media source is already here, just use it
             mMediaSourceAsyncCallbackHandler.onMediaSourceLoaded(mMediaSource);
-        }
+        }*/
+        // Jiayi: directly load new media
+        Utils.uriToMediaSourceAsync(this, mVideoUri, mMediaSourceAsyncCallbackHandler);
     }
 
     @Override
@@ -237,6 +266,9 @@ public class VideoViewActivity extends Activity {
             Toast.makeText(this, "current position: " + mVideoView.getCurrentPosition(), Toast.LENGTH_SHORT).show();
             return true;
         } else if(id == R.id.action_reload_source) {
+            // Jiayi: try to change the mVideoUri
+            // mVideoUri = Uri.parse(new File("/sdcard/P1_video/viking_1204_13674_crf23.mp4").toString());
+
             initPlayer();
         }
         return super.onOptionsItemSelected(item);

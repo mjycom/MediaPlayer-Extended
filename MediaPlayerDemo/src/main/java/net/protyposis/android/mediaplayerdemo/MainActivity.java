@@ -35,6 +35,8 @@ import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import io.fabric.sdk.android.Fabric;
+
+import java.io.File;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -69,6 +71,10 @@ public class MainActivity extends Activity implements VideoURIInputDialogFragmen
         }
 
         setContentView(R.layout.activity_main);
+
+        // Jiayi: directly start VideoViewActivity
+        mVideoUri = Uri.parse(new File("/sdcard/P1_video/viking.mp4").toString());
+        startActivity(new Intent(MainActivity.this, VideoViewActivity.class).setData(mVideoUri));
 
         mVideoSelectButton = (Button) findViewById(R.id.videoselect);
         mVideoSelect2Button = (Button) findViewById(R.id.videoselect2);
